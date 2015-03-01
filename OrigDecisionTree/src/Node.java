@@ -5,4 +5,6 @@ public class Node {
 	public Node trueChild;
 	public Node falseChild;
 	public Boolean label;
+	public boolean parentEdgeType;
+	public Node parentNode;
 }
