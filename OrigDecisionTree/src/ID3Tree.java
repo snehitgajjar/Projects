@@ -17,18 +17,23 @@ import java.util.Scanner;
 public class ID3Tree {
 	
 	
-	static double theta=0.70;
-	static ArrayList<Boolean[]> data=new ArrayList<Boolean[]>();
+	static double theta=0.40; // global value of theta
+	static ArrayList<Boolean[]> data=new ArrayList<Boolean[]>(); //Global dataset
+	
+	/**
+	 * @param filename,percentage	Here String parameter take filename and double takes percentage for which we
+	 * want to read file.
+	 * @return ArrayList<Boolean[]> Below method returns ArrayList of boolean as it reads binary data in file.
+	 */
 	
 	public static ArrayList<Boolean[]> readFile(String filename,double percentage) throws Exception {
 		
 		ArrayList<Boolean[]> data = new ArrayList<Boolean[]>();
 		
 		File file = new File(filename);
-		  LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file));
-		  lineNumberReader.skip(Long.MAX_VALUE);
-		  int lines = lineNumberReader.getLineNumber();
-		System.out.println("Line numbers: "+lines);
+		LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file));
+		lineNumberReader.skip(Long.MAX_VALUE);
+		int lines = lineNumberReader.getLineNumber();
 		Scanner input = new Scanner(new File(filename));
 		
 		int j=0;
@@ -48,11 +53,15 @@ public class ID3Tree {
 			data.add(record);
 			j++;
 		}
-		System.out.println("Actual Line numbers: "+j);
 		input.close();
 		
 		return data;
 	}
+	
+	/*
+	 *	allOneClass() method is not being used by program. 
+	 * 
+	 */
 	
 	public static boolean allOneClass(ArrayList<Boolean[]> data) {
 		
@@ -89,401 +98,357 @@ public class ID3Tree {
 		return allOneClass;
 	}
 	
-	public static boolean majorityClass(ArrayList<Split> findParent) {
+	/**
+	 * 
+	 * @param path ArrayList<Split> represent current path from root. 
+	 * @return boolean it returns true or false based on true number of rows> false number of rows
+	 * 
+	 */
+	
+	public static boolean majorityClass(ArrayList<Split> path) {
 		double trueCount = 0;
 		double falseCount = 0;
-		for(int i=0;i<findParent.size();i++)
-		{
-			System.out.print("PATH: "+findParent.get(i).attribute+" & VALUE: "+findParent.get(i).direction);
-		}
-/*		for(int i=0;i<path.size();i++)
-		{
-			System.out.print("PATH: "+path.get(i).attribute+" & VALUE: "+path.get(i).direction);
-		}*/
 		
-	/*	double PEtrue=PStarEWithClass(path,true);
-		double PEtruePrime=PStarEPrimeWithClass(path,false);
+		double S=PEWithoutClass(path)*data.size();	// finds data set S
+		double PStarEClass=PEWithClass(path,true);	
 		
-		 trueCount=(PEtrue+PEtruePrime)*data.size();
+		double trueRowSize=(PStarEClass*data.size())/S; //find true rows
 		
-		double PEfalse=PStarEWithClass(path,false);
-		double PEfalseprime=PStarEPrimeWithClass(path,true);
+		double falseRowSize=1-trueRowSize;	//find false rows
 		
-		 falseCount=(PEfalse+PEfalseprime)*data.size(); */
-		
-		double PEtrue=getPStarEWithoutClass(findParent);
-		double PEfalse=getPStarEPrimeWithoutClass(findParent);
-		double S=PEWithoutClass(findParent)*data.size();
-		
-		
-		
-		
-		double PStarEClass=PEWithClass(findParent,true);
-	//	PEtruePrime=PStarEPrimeWithClass(findParent,false);
-		
-		double trueRowSize=(PStarEClass*data.size())/S;
-		
-		double falseRowSize=1-trueRowSize;
-		
-		 System.out.println("TRUE COUNT: "+trueRowSize+" FALSE COUNT: "+falseRowSize);
 		return trueRowSize > falseRowSize;
 	}
 	
-	public static ArrayList<Boolean[]> getTrueRows(ArrayList<Boolean[]> data, int attribute) {
-		ArrayList<Boolean[]> trueRows = new ArrayList<Boolean[]>();
-		
-		
-		for (Boolean[] row: data) {
-			if (row[attribute]) {
-				trueRows.add(row);
-			}
-		}
-		
-		return trueRows;
-	}
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	//	/*
+	// 	*  Below four methods are not used by program.
+	// 	*/
+	//public static ArrayList<Boolean[]> getTrueRows(ArrayList<Boolean[]> data, int attribute) {
+	//	ArrayList<Boolean[]> trueRows = new ArrayList<Boolean[]>();
+	//	
+	//	
+	//	for (Boolean[] row: data) {
+	//		if (row[attribute]) {
+	//			trueRows.add(row);
+	//		}
+	//	}
+	//	
+	//	return trueRows;
+	//}
+	//
+	//public static ArrayList<Boolean[]> getFalseRows(ArrayList<Boolean[]> data, int attribute) {
+	//	ArrayList<Boolean[]> falseRows = new ArrayList<Boolean[]>();
+	//	
+	//	for (Boolean[] row: data) {
+	//		if (!row[attribute]) {
+	//			falseRows.add(row);
+	//		}
+	//	}
+	//	
+	//	return falseRows;
+	//}
+	//
+	//public static int numTrue(ArrayList<Boolean[]> data) {
+	//	int count = 0;
+	//	
+	//	for (Boolean[] row: data) {
+	//		if (row[row.length-1]) {
+	//			count++;
+	//		}
+	//	}
+	//	
+	//	return count;
+	//}
+	//
+	//public static int numFalse(ArrayList<Boolean[]> data) {
+	//	int count = 0;
+	//	
+	//	for (Boolean[] row: data) {
+	//		if (!row[row.length-1]) {
+	//			count++;
+	//		}
+	//	}
+	//	
+	//	return count;
+	//}
+	//////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	public static ArrayList<Boolean[]> getFalseRows(ArrayList<Boolean[]> data, int attribute) {
-		ArrayList<Boolean[]> falseRows = new ArrayList<Boolean[]>();
-		
-		for (Boolean[] row: data) {
-			if (!row[attribute]) {
-				falseRows.add(row);
-			}
-		}
-		
-		return falseRows;
-	}
-	
-	public static int numTrue(ArrayList<Boolean[]> data) {
-		int count = 0;
-		
-		for (Boolean[] row: data) {
-			if (row[row.length-1]) {
-				count++;
-			}
-		}
-		
-		return count;
-	}
-	
-	public static int numFalse(ArrayList<Boolean[]> data) {
-		int count = 0;
-		
-		for (Boolean[] row: data) {
-			if (!row[row.length-1]) {
-				count++;
-			}
-		}
-		
-		return count;
-	}
 	
 	/*
-	 * The below function returns negative values of the entropy.
+	 * Below method finds P*(E) without class
 	 */
 	
-	
-	public static double entropy(double Q) {
-		
-	
-		
-	//	double Qtrue = numTrue(data) / (double) data.size();
-	//	double Qfalse = numFalse(data) / (double) data.size();
-		
-		double entropy = 0;
-		
-		if(data.size()==0) return 0;
-		if (Q != 0) {
-			entropy += Q * (Math.log10(Q)/Math.log10(2));
-		}
-		
-		/*if (Qfalse != 0) {
-			entropy += Qfalse * (Math.log10(Qfalse)/Math.log10(2));
-		}*/
-		
-		return -entropy;
-	
-	}
-	
-	public static double getPStarEWithoutClass(ArrayList<Split> attributeMap)
+	public static double getPStarEWithoutClass(ArrayList<Split> path)
 	{
 		ArrayList<Boolean[]> trueData =new ArrayList<Boolean[]>();
-		//ArrayList<Boolean[]> falseData=new ArrayList<Boolean[]>();
 		
 		for(int i=0;i<data.size();i++)
 		{
 			Boolean checkTrueCondition=true;
-		//	Boolean checkFalseCondition=true;
 			
 			int j=0;
 			
-			while(j<attributeMap.size())
+			/*
+			 * While loop iterates through all the path and its direction and && it with boolean
+			 * values to check all the conditions are satisfied or not
+			 */
+			
+			while(j<path.size())
 			{
-				
-			//	System.out.println("Condition: "+(Integer) pair.getKey() );
-				checkTrueCondition=checkTrueCondition && (data.get(i)[(Integer) attributeMap.get(j).attribute]==attributeMap.get(j).direction);
-			//	checkFalseCondition=checkFalseCondition && (data.get(i)[(Integer) attributeMap.get(j).attribute]==!attributeMap.get(j).direction);
+				checkTrueCondition=checkTrueCondition && (data.get(i)[(Integer) path.get(j).attribute]==path.get(j).direction);
 				j++;
 			}
-			
-			
-			
+					
 			if(checkTrueCondition)
 			{
 				trueData.add(data.get(i));
 			}
 			
-			/*if(checkFalseCondition)
-			{
-				falseData.add(data.get(i));
-			}*/
 		}
-		
-		
+	
 		double PE=((double)trueData.size()/(double)data.size()) ;
 		
 		
 		return PE;
 	}
 
+	/*
+	 * Below method finds p*(EPrime) without class
+	 */
 	
-	
-	
-	public static double getPStarEPrimeWithoutClass(ArrayList<Split> attributeMap)
+	public static double getPStarEPrimeWithoutClass(ArrayList<Split> path)
 	{
-	//	ArrayList<Boolean[]> trueData =new ArrayList<Boolean[]>();
 		ArrayList<Boolean[]> falseData=new ArrayList<Boolean[]>();
 		
 		for(int i=0;i<data.size();i++)
 		{
-		//	Boolean checkTrueCondition=true;
 			Boolean checkFalseCondition=true;
 			
 			int j=0;
 			
-			while(j<attributeMap.size())
-			{
+			/*
+			 * While loop iterates through all the path and its direction and && it with boolean
+			 * values to check all the conditions are satisfied or not
+			 */
 			
-			//	System.out.println("Condition: "+(Integer) pair.getKey() );
-			//	checkTrueCondition=checkTrueCondition && (data.get(i)[(Integer) attributeMap.get(j).attribute]==attributeMap.get(j).direction);
-				checkFalseCondition=checkFalseCondition && (data.get(i)[(Integer) attributeMap.get(j).attribute]==!(attributeMap.get(j).direction));
+			while(j<path.size())
+			{		
+				checkFalseCondition=checkFalseCondition && (data.get(i)[(Integer) path.get(j).attribute]==!(path.get(j).direction));
 				j++;
 			}
-			
-			
-			
-		/*	if(checkTrueCondition)
-			{
-				trueData.add(data.get(i));
-			}*/
-			
+		
 			if(checkFalseCondition)
 			{
 				falseData.add(data.get(i));
 			}
+			
 		}
 		
-		
 		double PEPrime=((double)falseData.size()/(double)data.size());
-		
 		
 		return PEPrime;
 	}
 	
+	/*
+	 * Below method finds p*(EPrime) with class and it also takes classType = true or false as parameter
+	 */
 	
-	
-	
-	
-	
-	
-	public static double getPStarEPrimeWithClass(ArrayList<Split> attributeMap,boolean classType)
+	public static double getPStarEPrimeWithClass(ArrayList<Split> path,boolean classType)
 	{
-		ArrayList<Boolean[]> trueData =new ArrayList<Boolean[]>();
 		ArrayList<Boolean[]> falseData=new ArrayList<Boolean[]>();
 		
 		for(int i=0;i<data.size();i++)
 		{
-			//Boolean checkTrueCondition=data.get(i)[3]==classType;
 			Boolean checkFalseCondition=data.get(i)[3]==!classType;
-			
-			
+		
 			int j=0;
 			
-			while(j<attributeMap.size())
-			{
+			/*
+			 * While loop iterates through all the path and its direction and && it with boolean
+			 * values to check all the conditions are satisfied or not
+			 */
 			
-			//	System.out.println("Condition: "+(Integer) pair.getKey() );
-			//	checkTrueCondition=checkTrueCondition && (data.get(i)[(Integer) attributeMap.get(j).attribute]==attributeMap.get(j).direction);
-				checkFalseCondition=checkFalseCondition && (data.get(i)[(Integer) attributeMap.get(j).attribute]==!(attributeMap.get(j).direction));
+			while(j<path.size())
+			{
+				checkFalseCondition=checkFalseCondition && (data.get(i)[(Integer) path.get(j).attribute]==!(path.get(j).direction));
 				j++;
 			}
-			
-			
-			
-			/*if(checkTrueCondition)
-			{
-				trueData.add(data.get(i));
-			}*/
 			
 			if(checkFalseCondition)
 			{
 				falseData.add(data.get(i));
 			}
 		}
-		
-		
+	
 		return ((double)falseData.size()/(double)data.size()) ;
-		
-		
-		
+	
 	}
 	
+	/*
+	 * Below method finds p*(EP) with class and it also takes classType = true or false as parameter
+	 */
 	
-	
-	
-
-	public static double getPStarEWithClass(ArrayList<Split> attributeMap,boolean classType)
+	public static double getPStarEWithClass(ArrayList<Split> path,boolean classType)
 	{
 		ArrayList<Boolean[]> trueData =new ArrayList<Boolean[]>();
-		ArrayList<Boolean[]> falseData=new ArrayList<Boolean[]>();
 		
 		for(int i=0;i<data.size();i++)
 		{
 			Boolean checkTrueCondition=data.get(i)[3]==classType;
-			//Boolean checkFalseCondition=data.get(i)[3]=!classType;
 			
 			int j=0;
 			
-			while(j<attributeMap.size())
+			/*
+			 * While loop iterates through all the path and its direction and && it with boolean
+			 * values to check all the conditions are satisfied or not
+			 */
+			while(j<path.size())
 			{
-			
-			//	System.out.println("Condition: "+(Integer) pair.getKey() );
-				checkTrueCondition=checkTrueCondition && (data.get(i)[(Integer) attributeMap.get(j).attribute]==attributeMap.get(j).direction);
-			//	checkFalseCondition=checkFalseCondition && (data.get(i)[(Integer) attributeMap.get(j).attribute]==!attributeMap.get(j).direction);
+				checkTrueCondition=checkTrueCondition && (data.get(i)[(Integer) path.get(j).attribute]==path.get(j).direction);
 				j++;
 			}
-			
-			
 			
 			if(checkTrueCondition)
 			{
 				trueData.add(data.get(i));
 			}
 			
-		/*	if(checkFalseCondition)
-			{
-				falseData.add(data.get(i));
-			} */
 		}
 		
-	//	System.out.println("getEWithClass111: "+ ((double)trueData.size()/(double)data.size()));
 		return ((double)trueData.size()/(double)data.size());
-		
-		
+	
 	}
 	
-	public static double PEWithoutClass(ArrayList<Split> attributeMap)
+	/*
+	 * Below method finds P(E) without class
+	 */
+	 
+	public static double PEWithoutClass(ArrayList<Split> path)
 	{
 		
-		double pStarE=getPStarEWithoutClass(attributeMap);
-		double pStarEPrime=getPStarEPrimeWithoutClass(attributeMap);
-		double pE=(pStarE*theta+pStarEPrime*(1-theta))/(2*theta-1);
+		double pStarE=getPStarEWithoutClass(path); //finds P*(E)
+		double pStarEPrime=getPStarEPrimeWithoutClass(path);// finds P*(EPrime)
+		double pE=(pStarE*theta+pStarEPrime*(1-theta))/(2*theta-1); // finds P(E)
 		return pE;
 		
 	}
 	
-	/*public static double PEPrimeWithoutClass(ArrayList<Split> attributeMap)
-	{
-		double pE=getEWithoutClass (attributeMap);
-		double pEPrime=getEPrimeWithoutClass(attributeMap);
-		double pStarEPrime=pEPrime*theta+pE*(1-theta);
-		return pStarEPrime;
-		
-	}*/
+	/*
+	 * Below method finds P(E) with class and it also takes classType = true or false as parameter
+	 */
 	
-	public static double PEWithClass(ArrayList<Split> attributeMap,boolean classType)
+	public static double PEWithClass(ArrayList<Split> path,boolean classType)
 	{
 
-		double pE=getPStarEPrimeWithClass(attributeMap,classType);
-		double pEPrime=getPStarEPrimeWithClass(attributeMap,classType);
+		double pStarEClass=getPStarEPrimeWithClass(path,classType); //P*(E) with class
+		double pStarEPrimeClass=getPStarEPrimeWithClass(path,classType); // P*(EPrime) with class
 		
-		double pStarEClass=(pE*theta+pEPrime*(1-theta))/(2*theta-1);
-		return pStarEClass;
+		double PE=(pStarEClass*theta+pStarEPrimeClass*(1-theta))/(2*theta-1);  //computes P(E) with class
+		return PE;
 		
 	}
 	
-/*	public static double PEPrimeWithClass(ArrayList<Split> attributeMap,boolean classType)
-	{
-		double pStarEPrimeClass=1-PEWithClass (attributeMap,classType);
-		
-		return pStarEPrimeClass;
-		
-	}*/
-
-
+	/**
+	 * @param Qtrue,Qfalse Here Qtrue and Qfalse represent Sv in gain function.
+	 * @return double Returns double value of entropy.
+	 * The below function returns negative values of the entropy.
+	 */
 	
-public static double findGain(ArrayList<Boolean[]> data, int attribute,ArrayList<Split> findParent) {
+	public static double entropy(double Qtrue,double Qfalse) 
+	{
+			
+			double entropy = 0;
+			
+			if(data.size()==0) return 0;	// returns zero if data.size is zero
+			
+			if (Qtrue != 0) {
+				entropy += Qtrue * (Math.log10(Qtrue)/Math.log10(2));
+			}
+			if (Qfalse != 0) {
+				entropy += Qfalse * (Math.log10(Qfalse)/Math.log10(2));
+			}
+			
+			return -entropy;
 		
-		/*ArrayList<Boolean[]> trueRows=getE(data, attributeMap);
-		ArrayList<Boolean[]> falseRows=getEPrime(data,attributeMap);
-		*/
-	//	System.out.println("New true rows: "+trueRows.size()+" New false rows: "+falseRows.size()+" Total data: "+data.size());
-	//System.out.println("PATH SIZE!!!!!!!!!!! : "+findParent.size());
+	}
+	
+	/**
+	 * 
+	 * @param data	Takes original data as input
+	 * @param attribute	Takes one attribute as per passed from selectAttribute()
+	 * @param path	List of node and path values from root to current node
+	 * @return Returns gain in double value
+	 */
+	
+	/*
+	 * The below function returns negative values of the entropy.
+	 */
+	 
+	public static double findGain(ArrayList<Boolean[]> data, int attribute,ArrayList<Split> path) {
+		
 	double falseRowSize=0.0;
 	double trueRowSize=0.0,PEPrime=0.0,PStarE=0.0;
 	double S=0.0,PStarEClass=0.0,PEtruePrime=0.0,PEfalse=0.0,PEfalseprime=0.0,PEtrue;
-		if(findParent.size()==0)
+	
+	
+		if(path.size()==0)
 		{
-		/*	ArrayList<Boolean[]> trueRows = getTrueRows(data, attribute);
-			ArrayList<Boolean[]> falseRows = getFalseRows(data, attribute);
-			trueRowSize=trueRows.size();
-			falseRowSize=falseRows.size();*/
+			S=PEWithoutClass(path)*data.size();
+		
+			path.add(new Split(attribute,true));
 			
-			PEtrue=getPStarEWithoutClass(findParent);
+			PEtrue=getPStarEWithoutClass(path);
+			PEfalse=getPStarEPrimeWithoutClass(path);
 			
-			trueRowSize=(PEtrue)*data.size();
+			path.remove(path.size()-1);
 			
-			falseRowSize=0;
-			S=PEWithoutClass(findParent)*data.size();
-			
-			
+			trueRowSize=(PEtrue)*data.size()/S;
+			falseRowSize=0;		
 		}
 		else
 		{
-			PEtrue=getPStarEWithoutClass(findParent);
-			PEfalse=getPStarEPrimeWithoutClass(findParent);
-			S=PEWithoutClass(findParent)*data.size();
+			PEtrue=getPStarEWithoutClass(path);
+			PEfalse=getPStarEPrimeWithoutClass(path);
+			S=PEWithoutClass(path)*data.size();
 			
 			
 			
-			
-			PStarEClass=PEWithClass(findParent,true);
-		//	PEtruePrime=PStarEPrimeWithClass(findParent,false);
+			path.add(new Split(attribute,true));
+			PStarEClass=PEWithClass(path,true);
+			path.remove(path.size()-1);
 			
 			trueRowSize=(PStarEClass*data.size())/S;
-			
 			falseRowSize=1-trueRowSize;
 		}	
 		
 		
 		if(data.size()==0) return 0;
-		System.out.println("New true rows: "+(int)trueRowSize+" New false rows: "+(int)falseRowSize+" Total data: "+(int)S);
-		return entropy(S/data.size()) - 
-				((trueRowSize) * entropy(trueRowSize*data.size()) + 
-				 (falseRowSize) * entropy(falseRowSize*data.size()));
+		
+		return entropy(PEtrue,PEfalse) - 
+				((trueRowSize) * entropy(trueRowSize,falseRowSize) + 
+				 (falseRowSize) * entropy(falseRowSize,trueRowSize));
 	}
 	 
-	public static int selectAttribute(HashSet<Integer> attributes,ArrayList<Split> parentPath) {
+	/**
+	 * 
+	 * @param attributes Takes list of attributes as per passed from buildTree()
+	 * @param path List of node and path values from root to current node
+	 * @return returns maximum gain from remaining attributes
+	 *  
+	 */
+	
+	public static int selectAttribute(HashSet<Integer> attributes,ArrayList<Split> path) 
+	{
 		double maxGain = -Double.MIN_VALUE;
 		int attribute = 0;
 		
-		
-		
-		for (Integer i: attributes) {
+		for (Integer i: attributes) 
+		{
 			if(attributes.size()==1) attribute=i;
-			double gain = findGain(data, i,parentPath);
-			System.out.println("\nGain for "+i+" :"+gain+" MaxGain: "+maxGain);
-			if (gain > maxGain) {
+
+			double gain = findGain(data, i,path);
+			if (gain > maxGain) 
+			{
 				
 				maxGain = gain;
 				attribute = i;
@@ -494,69 +459,46 @@ public static double findGain(ArrayList<Boolean[]> data, int attribute,ArrayList
 		return attribute;
 	}
 	
-	static Map<Integer,Boolean> attributeEdge=new HashMap<Integer,Boolean>();
+	/**
+	 * 
+	 * @param path List of node and path values from root to current node
+	 * @param attributes Takes list of attributes
+	 * @return Node with Label or node from splitting of attribute
+	 * 
+	 */
 	
-	static int yo=0;
-	public static Node buildTree(ArrayList<Split> path, HashSet<Integer> attributes,Node parent,boolean value) {
-		System.out.println("Buildtree call......"+(++yo));
+	public static Node buildTree(ArrayList<Split> path, HashSet<Integer> attributes) 
+	{
 		Node node = new Node();
-	
-		/*if (allOneClass(data)) {
-			node.label = majorityClass(data);
-			
-			return node;
-		} */
 		
 		if (attributes.size() == 0) { // no more attributes to split on
 			node.label = majorityClass(path);
-	//		System.out.println("In mejority class.........! ");
 			return node;
 		}
 		
 		ArrayList<Split> findParent=path;
 		
-				
-		
-			
-			node.attribute = selectAttribute( attributes,findParent);
-		
-			
-			
-			System.out.println("\nSelected Attribute: "+ node.attribute +" and size of attributes: "+attributes.size());
-		//	node.attribute = selectAttribute(attributes,findParent);
-		
-		
-	/*	for(int i=0;i<findParent.size();i++)
-		{
-			System.out.print("PATH: "+findParent.get(i).attribute+" & VALUE: "+findParent.get(i).direction);
-		}*/
-
-	/*	ArrayList<Boolean[]> trueRows = getTrueRows(data, node.attribute);
-		if (trueRows.size() == 0) { // remove this if
-			node.trueChild = new Node();
-			
-		//	attributeEdge.put(node.attribute,true);
-			
-			node.trueChild.label = majorityClass(data);
-		} else {*/
-		//	attributeEdge.put(node.attribute,true);
-		
-	 
+		node.attribute = selectAttribute( attributes,findParent);		
 		attributes.remove(node.attribute);
-		ArrayList<Split> truePath = (ArrayList<Split>) findParent.clone(); 
+		
+		ArrayList<Split> truePath = (ArrayList<Split>) findParent.clone(); // Splits on true edge
 		truePath.add(new Split(node.attribute, true)); 
-		node.trueChild = buildTree(truePath,attributes,node,true);
+		node.trueChild = buildTree(truePath,attributes);
 		
-		ArrayList<Split> falsePath = (ArrayList<Split>) findParent.clone(); 
+		ArrayList<Split> falsePath = (ArrayList<Split>) findParent.clone(); // Splits on false edge
 		falsePath.add(new Split(node.attribute, false)); 
-		node.falseChild = buildTree(falsePath,attributes,node,false);
+		node.falseChild = buildTree(falsePath,attributes);
 			
-			
-		
-		
 		return node;
 	}
 
+	/**
+	 * 
+	 * @param node takes root node as input
+	 * @param row	Takes a single data row as input
+	 * @return return true if class is 1 and o otherwise
+	 */
+	
 	public static boolean classify(Node node, Boolean[] row) {
 		if (node.label != null) {
 			return node.label;
@@ -569,6 +511,17 @@ public static double findGain(ArrayList<Boolean[]> data, int attribute,ArrayList
 			}
 		}
 	}
+	
+	/**
+	 * 
+	 * @param node	takes root node as input
+	 * @param tab	Tabular count
+	 * 
+	 */
+	
+	/*
+	 *  This method prints tree on the command prompt
+	 */
 	
 	public static void traverseTree(Node node, int tab) {
 		if (node.label != null) {
@@ -585,67 +538,36 @@ public static double findGain(ArrayList<Boolean[]> data, int attribute,ArrayList
 			traverseTree(node.falseChild, tab+1);
 		}
 	}
+
+	/**
+	 * 
+	 * @param inputFilename Takes input file name 
+	 * @param outputFileName	takes output file name
+	 * @param theta also take theta as input
+	 *
+	 */
+		
+	/*
+	 * 	Below method randomized data base on the theta value and random number generated
+	 * 	between 0.0 to 1.0
+	 */
 	
-	public static void main(String[] args) throws Exception {
-		
-		Scanner keyboard=new Scanner(System.in);
-		
-		System.out.print("Enter what percentage of file you want to work on: ");
-		double percentage=keyboard.nextDouble();
-		
-		 data = readFile("./randomizeddata.txt",percentage);
-		
-		HashSet<Integer> attributes = new HashSet<Integer>();
-		for (int i=0; i<data.get(0).length-1; i++) {
-			attributes.add(i);
-		}
-		ArrayList<Split> path=new ArrayList<Split>();
-		Node root = buildTree(path, attributes,null,true);
-		
-		traverseTree(root, 0);
-		
-		//Boolean[] record = {true, false, false};
-		ArrayList<Boolean[]> testData=readFile("./test.txt",1);
-		ArrayList testTrueClass=new ArrayList();
-		double counter=0;
-		for(int i=0;i<testData.size();i++)
-		{
-	//		System.out.println(Arrays.toString(testData.get(i)));
-	//		System.out.println(classify(root,testData.get(i)));
-			if(testData.get(i)[3]==classify(root,testData.get(i)))
-				counter++;
-		
-		}
-		
-		System.out.println("Tested true size: "+counter);
-		System.out.println("Efficiency is: "+(counter/testData.size())*100);
-		
-		
-		/*
-		randomizeData("./training.txt", 0.70);
-		*/
-	}
-	
-	
-	public static void randomizeData(String filename,double theta)
+	public static void randomizeData(String inputFilename,String outputFileName,double theta)
 	{
 		String line;
 		PrintWriter pw = null;
 		double randomNumber;
 		try {
-			BufferedReader br=new BufferedReader(new FileReader(new File(filename)));
-		
-		
-		
-			pw=new PrintWriter(new File("./randomizeddata.txt"));
+			BufferedReader br=new BufferedReader(new FileReader(new File(inputFilename))); // read file
+
+			pw=new PrintWriter(new File(outputFileName)); 	// Create buffere to write into output file
 		
 			while((line=br.readLine())!=null)
 			{
-				randomNumber=Math.random();
-				System.out.println("Random Number: "+randomNumber);
+				randomNumber=Math.random();	// create random number
 				String token[]=line.split(",");
 			
-				if(randomNumber<theta)
+				if(randomNumber<theta)	//Checks condition to flip value of given row
 				{
 					String str="";
 					for(int i=0;i<token.length;i++)
@@ -687,22 +609,53 @@ public static double findGain(ArrayList<Boolean[]> data, int attribute,ArrayList
 		}	
 		
 	}
+
+	/*
+	 *  main() method interact with user to get value of theta and percentage of file wants to read
+	 *  it also calls buildtree method and than runs test data on build tree and outputs decision tree
+	 *  and efficiency of decision tree.
+	 */
 	
-	
-	
-	public static Map getCondition(Node node)
-	{
-		Node iterNode=node;
-		Map<Integer,Boolean> map=new HashMap<Integer,Boolean>();
-		while(iterNode.parentNode!=null)
-		{
-		//	System.out.print("Parent node: "+iterNode.parentNode.attribute+" Edge Type: "+iterNode.parentEdgeType+"\t");
-			map.put(iterNode.parentNode.attribute,iterNode.parentEdgeType );
-			iterNode=iterNode.parentNode;
+	public static void main(String[] args) throws Exception {
+		
+		Scanner keyboard=new Scanner(System.in);
+		
+		System.out.print("Enter value of theta: ");
+		theta=keyboard.nextDouble();
+		
+		randomizeData("./training_large.txt","training_rand.txt",theta);
+		
+		System.out.print("Enter what percentage of file you want to work on: ");
+		double percentage=keyboard.nextDouble();
+		
+		data = readFile("./training_rand.txt",percentage);
+		 
+		HashSet<Integer> attributes = new HashSet<Integer>();
+		
+		for (int i=0; i<data.get(0).length-1; i++) {
+			attributes.add(i);
 		}
-		System.out.println();
-		return map;
+		
+		ArrayList<Split> path=new ArrayList<Split>();
+		
+		Node root = buildTree(path, attributes);
+		
+		traverseTree(root, 0);
+		
+		randomizeData("./test.txt","test_rand.txt",theta);
+		ArrayList<Boolean[]> testData=readFile("test_rand.txt",theta);
+		
+		ArrayList testTrueClass=new ArrayList();
+	
+		double counter=0;
+		
+		for(int i=0;i<testData.size();i++)
+		{
+			if(testData.get(i)[3]==classify(root,testData.get(i))) counter++;	
+		}
+		
+		System.out.println("Efficiency is: "+(counter/testData.size())*100);	
+		
 	}
 	
-
 }
