@@ -20,7 +20,7 @@ class MaxHeap implements Comparator<Integer> {
 }
 
 
-class Solution {
+class FindKMin {
 	public static void main(String[] args) {
 
 		String url="kitten%20pic.jpg";
