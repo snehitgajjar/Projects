@@ -9,9 +9,17 @@
  * If you need more classes, simply define them inline.
  */
 
+/*class Tree {
+	int value;
+	Tree leftTree;
+	Tree rightTree;
 
+	public void setValue(int value){
+		this.value = value;
+	}
+}*/
 
-class ChangeSpecialCharToBinary {
+public class ChangeSpecialCharToBinary {
 
 	static int no=0;
 	public static void main(String[] args) {
